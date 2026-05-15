@@ -322,7 +322,7 @@ export default function Home() {
       <div className="fixed top-[20%] right-[-10%] w-96 h-96 bg-pink-600/20 rounded-full mix-blend-screen filter blur-[128px] opacity-50 pointer-events-none z-0"></div>
 
       {/* Navbar Floating Bubble */}
-      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+      <div className="fixed top-6 left-0 right-0 z-100 flex justify-center px-4 pointer-events-none">
         <nav className="pointer-events-auto bg-[#111111]/90 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3.5 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.6)] transition-all duration-300">
           {/* Logo */}
           <a href="#home" className="text-base font-bold tracking-tight text-white pr-2">
