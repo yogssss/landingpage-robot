@@ -117,7 +117,9 @@ interface SplineSceneProps {
   className?: string
 }
 
-function SplineScene({ scene, className }: SplineSceneProps) {
+// ✅ FIX: React.memo mencegah SplineScene re-render saat parent state berubah
+// (misal saat mobileMenuOpen toggle), karena props-nya (scene, className) tidak berubah
+const SplineScene = React.memo(function SplineScene({ scene, className }: SplineSceneProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
 
@@ -166,7 +168,7 @@ function SplineScene({ scene, className }: SplineSceneProps) {
       />
     </div>
   )
-}
+})
 
 // --- COMPONENT: CONTAINER SCROLL ANIMATION ---
 const ContainerScroll = ({
@@ -232,20 +234,68 @@ const ScrollCard = ({
 );
 
 
+// --- COMPONENT: NAVBAR ---
+// ✅ FIX: Dipisah jadi komponen sendiri supaya state mobileMenuOpen TIDAK
+// menyebabkan re-render di komponen Home (dan SplineScene ikut terdampak).
+const Navbar = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const handleNavClick = () => setMobileMenuOpen(false)
+
+  return (
+    <div className="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none">
+      <div className="pointer-events-auto w-full max-w-fit">
+        <nav className="bg-[#111111]/90 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3.5 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.6)] transition-all duration-300">
+          <a href="#home" className="text-base font-bold tracking-tight text-white pr-2" onClick={handleNavClick}>
+            Gurur<span className="text-purple-500">.</span>
+          </a>
+          <div className="hidden md:block w-[1px] h-5 bg-white/15 mx-4"></div>
+          <div className="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-400">
+            <a href="#home" className="hover:text-white transition-colors">Home</a>
+            <a href="#projects" className="hover:text-white transition-colors">Projects</a>
+            <a href="#skills" className="hover:text-white transition-colors">Skills</a>
+            <a href="#contact" className="text-white hover:text-purple-400 transition-colors font-bold tracking-wide">Talk</a>
+          </div>
+          <button
+            className="md:hidden text-white ml-6"
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            aria-label="Toggle mobile menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </nav>
+
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="md:hidden mt-2 mx-auto bg-[#111111]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.6)] overflow-hidden"
+            >
+              <div className="flex flex-col py-2">
+                <a href="#home" onClick={handleNavClick} className="px-6 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all">Home</a>
+                <a href="#projects" onClick={handleNavClick} className="px-6 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all">Projects</a>
+                <a href="#skills" onClick={handleNavClick} className="px-6 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all">Skills</a>
+                <div className="mx-4 my-1 border-t border-white/10"></div>
+                <a href="#contact" onClick={handleNavClick} className="px-6 py-3 text-sm font-bold text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 transition-all">Talk</a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  )
+}
+
 // --- MAIN PAGE ---
 export default function Home() {
   const [mounted, setMounted] = useState(false)
-  // ✅ FIX: State untuk mengontrol buka/tutup mobile menu
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  // Menutup menu saat link diklik
-  const handleNavClick = () => {
-    setMobileMenuOpen(false)
-  }
 
   const fadeUp: any = {
     hidden: { opacity: 0, y: 40 },
@@ -263,68 +313,8 @@ export default function Home() {
       <div className="fixed top-[-10%] left-[-10%] w-96 h-96 bg-purple-600/20 rounded-full mix-blend-screen filter blur-[128px] opacity-50 pointer-events-none z-0"></div>
       <div className="fixed top-[20%] right-[-10%] w-96 h-96 bg-pink-600/20 rounded-full mix-blend-screen filter blur-[128px] opacity-50 pointer-events-none z-0"></div>
 
-      {/* Navbar Floating Bubble */}
-      <div className="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none">
-        <div className="pointer-events-auto w-full max-w-fit">
-          <nav className="bg-[#111111]/90 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3.5 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.6)] transition-all duration-300">
-            {/* Logo */}
-            <a href="#home" className="text-base font-bold tracking-tight text-white pr-2" onClick={handleNavClick}>
-              Gurur<span className="text-purple-500">.</span>
-            </a>
-            
-            {/* Divider */}
-            <div className="hidden md:block w-[1px] h-5 bg-white/15 mx-4"></div>
-            
-            {/* Desktop Menu Links */}
-            <div className="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-400">
-              <a href="#home" className="hover:text-white transition-colors">Home</a>
-              <a href="#projects" className="hover:text-white transition-colors">Projects</a>
-              <a href="#skills" className="hover:text-white transition-colors">Skills</a>
-              <a href="#contact" className="text-white hover:text-purple-400 transition-colors font-bold tracking-wide">Talk</a>
-            </div>
-
-            {/* ✅ FIX: Tombol Menu Mobile dengan toggle state */}
-            <button
-              className="md:hidden text-white ml-6"
-              onClick={() => setMobileMenuOpen(prev => !prev)}
-              aria-label="Toggle mobile menu"
-              aria-expanded={mobileMenuOpen}
-            >
-              {/* ✅ FIX: Ikon berganti antara Menu (hamburger) dan X (close) */}
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </nav>
-
-          {/* ✅ FIX: Mobile dropdown menu dengan animasi */}
-          <AnimatePresence>
-            {mobileMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="md:hidden mt-2 mx-auto bg-[#111111]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.6)] overflow-hidden"
-              >
-                <div className="flex flex-col py-2">
-                  <a href="#home" onClick={handleNavClick} className="px-6 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all">
-                    Home
-                  </a>
-                  <a href="#projects" onClick={handleNavClick} className="px-6 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all">
-                    Projects
-                  </a>
-                  <a href="#skills" onClick={handleNavClick} className="px-6 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all">
-                    Skills
-                  </a>
-                  <div className="mx-4 my-1 border-t border-white/10"></div>
-                  <a href="#contact" onClick={handleNavClick} className="px-6 py-3 text-sm font-bold text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 transition-all">
-                    Talk
-                  </a>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+      {/* ✅ FIX: Navbar terisolasi — state-nya tidak ikut me-re-render Home */}
+      <Navbar />
 
       <div className="relative z-10 pt-28 pb-10">
         
