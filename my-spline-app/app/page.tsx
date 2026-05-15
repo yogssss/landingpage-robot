@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from "react"
-import { Layout, Server, Figma, ArrowUpRight, Mail, Github, Twitter, Linkedin, Menu } from "lucide-react"
+import { Layout, Server, PenTool, ArrowUpRight, Mail, Code, Globe, User, Menu } from "lucide-react"
 import { motion, useScroll, useTransform, MotionValue } from "framer-motion"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
@@ -369,7 +369,7 @@ export default function Home() {
               {/* Skill 3 */}
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 hover:bg-white/[0.04] transition-all hover:-translate-y-1">
                 <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6 text-purple-400">
-                  <Figma className="w-7 h-7" />
+                  <PenTool className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">UI/UX Design</h3>
                 <p className="text-gray-400 text-sm mb-6 leading-relaxed">
@@ -446,9 +446,9 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm mb-4 md:mb-0">© 2024 Raka Portfolio. All rights reserved.</p>
           <div className="flex space-x-6">
-            <a href="#" className="text-gray-500 hover:text-white transition-colors"><Github className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors"><Twitter className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors"><Linkedin className="w-5 h-5" /></a>
+            <a href="#" className="text-gray-500 hover:text-white transition-colors"><Code className="w-5 h-5" /></a>
+            <a href="#" className="text-gray-500 hover:text-white transition-colors"><Globe className="w-5 h-5" /></a>
+            <a href="#" className="text-gray-500 hover:text-white transition-colors"><User className="w-5 h-5" /></a>
           </div>
         </div>
       </footer>
