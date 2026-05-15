@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, Suspense, lazy } from "react"
 import { Layout, Server, PenTool, ArrowUpRight, Mail, Code, Globe, User, Menu } from "lucide-react"
 import { motion, useScroll, useTransform, MotionValue } from "framer-motion"
 import { clsx, type ClassValue } from "clsx"
@@ -77,29 +77,54 @@ const Spotlight = ({ className, fill }: { className?: string; fill?: string }) =
 }
 
 // --- COMPONENT: SPLINE SCENE (INLINED) ---
-// Menggunakan iframe untuk Spline di lingkungan preview agar tidak ada error dependensi
+// Menggunakan komponen native script injection untuk menghindari error dependencies di lingkungan yang ketat
 interface SplineSceneProps {
   scene: string
   className?: string
 }
+
 function SplineScene({ scene, className }: SplineSceneProps) {
-  // Mengekstrak ID scene dari link URL
-  const urlMatch = scene.match(/spline\.design\/(.+)\/scene/);
-  const splineId = urlMatch ? urlMatch[1] : 'kZDDjO5HuC9GJUM2';
-  
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Ekstrak ID dari URL jika format URL berubah
+    const urlMatch = scene.match(/spline\.design\/(.+)\/scene/)
+    const splineId = urlMatch ? urlMatch[1] : 'kZDDjO5HuC9GJUM2'
+    
+    // Gunakan elemen viewer web component asli bawaan spline
+    const splineViewerUrl = "https://unpkg.com/@splinetool/viewer@1.9.5/build/spline-viewer.js"
+    
+    if (!document.querySelector(`script[src="${splineViewerUrl}"]`)) {
+      const script = document.createElement("script")
+      script.type = "module"
+      script.src = splineViewerUrl
+      document.body.appendChild(script)
+    }
+
+    // Tunggu sedikit sebelum menyembunyikan loader agar animasi tidak kaku
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [scene])
+
   return (
-    <div className={cn("w-full h-full relative rounded-2xl overflow-hidden", className)}>
-      <iframe 
-        src={`https://my.spline.design/${splineId}/`} 
-        frameBorder="0" 
-        width="100%" 
-        height="100%" 
-        className="absolute inset-0 z-10"
-        title="3D Interactive Spline"
-      ></iframe>
-      <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-0">
-        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
+    <div ref={containerRef} className={cn("w-full h-full relative rounded-2xl overflow-hidden", className)}>
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20 transition-opacity duration-500">
+          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+      
+      {/* Menggunakan web component langsung (mengabaikan warning react untuk custom element) */}
+      <div 
+        className="absolute inset-0 z-10 w-full h-full [&>spline-viewer]:w-full [&>spline-viewer]:h-full"
+        dangerouslySetInnerHTML={{
+          __html: `<spline-viewer url="${scene}"></spline-viewer>`
+        }}
+      />
     </div>
   )
 }
@@ -275,7 +300,9 @@ export default function Home() {
                     Crafting digital <br/> experiences.
                   </h1>
                   <p className="mt-6 text-neutral-300 max-w-lg text-lg leading-relaxed">
-                    I'm a creative developer focusing on building interactive, functional, and visually stunning web applications.
+                    Bikin kayak gini cuma pake AI gampang banget mpruyyy. Publishnya juga gratis cuma modal Prompt AI doang😹😹.
+                    Lu kalau gabisa tolol nya kebangetan sih, iya gua tau tolol itu gratis. TAPI JANGAN LU BORONG SEMUA SAMA BEGO DAN GOBLOGNYA DONG😹
+                    Maruk amat jadi orang😝
                   </p>
                   <div className="mt-8 flex gap-4">
                     <a href="#projects" className="px-6 py-3 bg-white text-black font-medium rounded-full hover:bg-gray-200 transition-colors text-sm">
