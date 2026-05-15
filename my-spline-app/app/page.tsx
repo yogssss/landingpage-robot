@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useRef, Suspense, lazy } from "react"
-import { Layout, Server, PenTool, ArrowUpRight, Mail, Code, Globe, User, Menu, Volume2, VolumeX } from "lucide-react"
-import { motion, useScroll, useTransform, MotionValue } from "framer-motion"
+import { Layout, Server, PenTool, ArrowUpRight, Mail, Code, Globe, User, Menu, X, Volume2, VolumeX } from "lucide-react"
+import { motion, useScroll, useTransform, MotionValue, AnimatePresence } from "framer-motion"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -17,14 +17,12 @@ const BackgroundMusic = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    // Mencoba autoplay saat komponen dimuat
     if (audioRef.current) {
-      audioRef.current.volume = 0.2; // Set volume rendah agar tidak mengganggu
+      audioRef.current.volume = 0.2;
       audioRef.current.play()
         .then(() => setIsPlaying(true))
-        .catch((error) => {
-          // Browser biasanya memblokir autoplay tanpa interaksi pengguna
-          console.log("Autoplay dicegah oleh browser. Pengguna harus berinteraksi terlebih dahulu.");
+        .catch(() => {
+          console.log("Autoplay dicegah oleh browser.");
           setIsPlaying(false);
         });
     }
@@ -43,12 +41,7 @@ const BackgroundMusic = () => {
 
   return (
     <>
-      <audio
-        ref={audioRef}
-        // Pastikan file music.mp3 sudah Anda masukkan ke dalam folder "public" di project Anda
-        src="/music.mp3"
-        loop
-      />
+      <audio ref={audioRef} src="/music.mp3" loop />
       <button
         onClick={toggleMute}
         className="fixed bottom-6 right-6 z-50 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-full transition-all duration-300 shadow-lg text-white"
@@ -110,24 +103,15 @@ const Spotlight = ({ className, fill }: { className?: string; fill?: string }) =
           colorInterpolationFilters="sRGB"
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood>
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="BackgroundImageFix"
-            result="shape"
-          ></feBlend>
-          <feGaussianBlur
-            stdDeviation="151"
-            result="effect1_foregroundBlur_1065_8"
-          ></feGaussianBlur>
+          <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend>
+          <feGaussianBlur stdDeviation="151" result="effect1_foregroundBlur_1065_8"></feGaussianBlur>
         </filter>
       </defs>
     </svg>
   )
 }
 
-// --- COMPONENT: SPLINE SCENE (INLINED) ---
-// Menggunakan komponen native script injection untuk menghindari error dependencies di lingkungan yang ketat
+// --- COMPONENT: SPLINE SCENE ---
 interface SplineSceneProps {
   scene: string
   className?: string
@@ -138,11 +122,6 @@ function SplineScene({ scene, className }: SplineSceneProps) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Ekstrak ID dari URL jika format URL berubah
-    const urlMatch = scene.match(/spline\.design\/(.+)\/scene/)
-    const splineId = urlMatch ? urlMatch[1] : 'kZDDjO5HuC9GJUM2'
-    
-    // Gunakan elemen viewer web component asli bawaan spline
     const splineViewerUrl = "https://unpkg.com/@splinetool/viewer@1.9.5/build/spline-viewer.js"
     
     if (!document.querySelector(`script[src="${splineViewerUrl}"]`)) {
@@ -152,19 +131,15 @@ function SplineScene({ scene, className }: SplineSceneProps) {
       document.body.appendChild(script)
     }
 
-    // Tunggu sedikit sebelum menyembunyikan loader agar animasi tidak kaku
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 1500)
+    const timer = setTimeout(() => setLoading(false), 1500)
 
-    // Interval tangguh untuk menghapus logo Spline di dalam Shadow DOM secara paksa
     const removeLogoInterval = setInterval(() => {
       const viewer = document.querySelector('spline-viewer');
       if (viewer && viewer.shadowRoot) {
         const logo = viewer.shadowRoot.querySelector('#logo');
         if (logo) {
-          logo.remove(); // Hapus elemen logonya!
-          clearInterval(removeLogoInterval); // Hentikan interval jika logo sudah berhasil dihapus
+          logo.remove();
+          clearInterval(removeLogoInterval);
         }
       }
     }, 500);
@@ -177,20 +152,12 @@ function SplineScene({ scene, className }: SplineSceneProps) {
 
   return (
     <div ref={containerRef} className={cn("w-full h-full relative rounded-2xl overflow-hidden", className)}>
-      {/* Fallback CSS untuk menyembunyikan logo "Built with Spline" */}
-      <style>{`
-        spline-viewer::part(logo) {
-          display: none !important;
-        }
-      `}</style>
-
+      <style>{`spline-viewer::part(logo) { display: none !important; }`}</style>
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20 transition-opacity duration-500">
           <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-      
-      {/* Menggunakan web component langsung dengan events-target="global" untuk interaksi optimal */}
       <div 
         className="absolute inset-0 z-10 w-full h-full [&>spline-viewer]:w-full [&>spline-viewer]:h-full"
         dangerouslySetInnerHTML={{
@@ -201,7 +168,7 @@ function SplineScene({ scene, className }: SplineSceneProps) {
   )
 }
 
-// --- COMPONENT: CONTAINER SCROLL ANIMATION (INLINED) ---
+// --- COMPONENT: CONTAINER SCROLL ANIMATION ---
 const ContainerScroll = ({
   titleComponent,
   children,
@@ -210,111 +177,86 @@ const ContainerScroll = ({
   children: React.ReactNode;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-  });
+  const { scrollYProgress } = useScroll({ target: containerRef });
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
-    return () => {
-      window.removeEventListener("resize", checkMobile);
-    };
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const scaleDimensions = () => {
-    return isMobile ? [0.7, 0.9] : [1.05, 1];
-  };
+  const scaleDimensions = () => isMobile ? [0.7, 0.9] : [1.05, 1];
 
   const rotate = useTransform(scrollYProgress, [0, 1], [20, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], scaleDimensions());
   const translate = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
   return (
-    <div
-      className="h-[60rem] md:h-[80rem] flex items-center justify-center relative p-2 md:p-20"
-      ref={containerRef}
-    >
-      <div
-        className="py-10 md:py-40 w-full relative"
-        style={{
-          perspective: "1000px",
-        }}
-      >
+    <div className="h-[60rem] md:h-[80rem] flex items-center justify-center relative p-2 md:p-20" ref={containerRef}>
+      <div className="py-10 md:py-40 w-full relative" style={{ perspective: "1000px" }}>
         <ScrollHeader translate={translate} titleComponent={titleComponent} />
-        <ScrollCard rotate={rotate} translate={translate} scale={scale}>
-          {children}
-        </ScrollCard>
+        <ScrollCard rotate={rotate} translate={translate} scale={scale}>{children}</ScrollCard>
       </div>
     </div>
   );
 };
 
-const ScrollHeader = ({ translate, titleComponent }: any) => {
-  return (
-    <motion.div
-      style={{
-        translateY: translate,
-      }}
-      className="div max-w-5xl mx-auto text-center"
-    >
-      {titleComponent}
-    </motion.div>
-  );
-};
+const ScrollHeader = ({ translate, titleComponent }: any) => (
+  <motion.div style={{ translateY: translate }} className="div max-w-5xl mx-auto text-center">
+    {titleComponent}
+  </motion.div>
+);
 
 const ScrollCard = ({
-  rotate,
-  scale,
-  children,
+  rotate, scale, children,
 }: {
   rotate: MotionValue<number>;
   scale: MotionValue<number>;
   translate: MotionValue<number>;
   children: React.ReactNode;
-}) => {
-  return (
-    <motion.div
-      style={{
-        rotateX: rotate,
-        scale,
-        boxShadow:
-          "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
-      }}
-      className="max-w-5xl -mt-12 mx-auto h-[30rem] md:h-[40rem] w-full border-4 border-[#6C6C6C] p-2 md:p-6 bg-[#222222] rounded-[30px] shadow-2xl"
-    >
-      <div className=" h-full w-full  overflow-hidden rounded-2xl bg-gray-100 dark:bg-zinc-900 md:rounded-2xl md:p-4 ">
-        {children}
-      </div>
-    </motion.div>
-  );
-};
+}) => (
+  <motion.div
+    style={{
+      rotateX: rotate,
+      scale,
+      boxShadow: "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
+    }}
+    className="max-w-5xl -mt-12 mx-auto h-[30rem] md:h-[40rem] w-full border-4 border-[#6C6C6C] p-2 md:p-6 bg-[#222222] rounded-[30px] shadow-2xl"
+  >
+    <div className="h-full w-full overflow-hidden rounded-2xl bg-gray-100 dark:bg-zinc-900 md:rounded-2xl md:p-4">
+      {children}
+    </div>
+  </motion.div>
+);
 
 
 // --- MAIN PAGE ---
 export default function Home() {
   const [mounted, setMounted] = useState(false)
+  // ✅ FIX: State untuk mengontrol buka/tutup mobile menu
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Variants untuk animasi scroll reveal (Tipe Any untuk menghindari TS Easing error di Framer Motion terbaru)
+  // Menutup menu saat link diklik
+  const handleNavClick = () => {
+    setMobileMenuOpen(false)
+  }
+
   const fadeUp: any = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
   }
 
-  if (!mounted) return null; // Mencegah hydration mismatch
+  if (!mounted) return null;
 
   return (
     <main className="min-h-screen bg-[#050505] text-white selection:bg-purple-500/30 overflow-x-hidden relative">
       
-      {/* Background Music Component */}
       <BackgroundMusic />
 
       {/* Ambient Background Glows */}
@@ -322,34 +264,71 @@ export default function Home() {
       <div className="fixed top-[20%] right-[-10%] w-96 h-96 bg-pink-600/20 rounded-full mix-blend-screen filter blur-[128px] opacity-50 pointer-events-none z-0"></div>
 
       {/* Navbar Floating Bubble */}
-      <div className="fixed top-6 left-0 right-0 z-100 flex justify-center px-4 pointer-events-none">
-        <nav className="pointer-events-auto bg-[#111111]/90 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3.5 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.6)] transition-all duration-300">
-          {/* Logo */}
-          <a href="#home" className="text-base font-bold tracking-tight text-white pr-2">
-            Gurur<span className="text-purple-500">.</span>
-          </a>
-          
-          {/* Garis Pemisah (Divider) */}
-          <div className="hidden md:block w-[1px] h-5 bg-white/15 mx-4"></div>
-          
-          {/* Menu Links */}
-          <div className="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-400">
-            <a href="#home" className="hover:text-white transition-colors">Home</a>
-            <a href="#projects" className="hover:text-white transition-colors">Projects</a>
-            <a href="#skills" className="hover:text-white transition-colors">Skills</a>
-            <a href="#contact" className="text-white hover:text-purple-400 transition-colors font-bold tracking-wide">Talk</a>
-          </div>
+      <div className="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none">
+        <div className="pointer-events-auto w-full max-w-fit">
+          <nav className="bg-[#111111]/90 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3.5 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.6)] transition-all duration-300">
+            {/* Logo */}
+            <a href="#home" className="text-base font-bold tracking-tight text-white pr-2" onClick={handleNavClick}>
+              Gurur<span className="text-purple-500">.</span>
+            </a>
+            
+            {/* Divider */}
+            <div className="hidden md:block w-[1px] h-5 bg-white/15 mx-4"></div>
+            
+            {/* Desktop Menu Links */}
+            <div className="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-400">
+              <a href="#home" className="hover:text-white transition-colors">Home</a>
+              <a href="#projects" className="hover:text-white transition-colors">Projects</a>
+              <a href="#skills" className="hover:text-white transition-colors">Skills</a>
+              <a href="#contact" className="text-white hover:text-purple-400 transition-colors font-bold tracking-wide">Talk</a>
+            </div>
 
-          {/* Tombol Menu untuk Mobile */}
-          <button className="md:hidden text-white ml-6">
-            <Menu className="w-5 h-5" />
-          </button>
-        </nav>
+            {/* ✅ FIX: Tombol Menu Mobile dengan toggle state */}
+            <button
+              className="md:hidden text-white ml-6"
+              onClick={() => setMobileMenuOpen(prev => !prev)}
+              aria-label="Toggle mobile menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {/* ✅ FIX: Ikon berganti antara Menu (hamburger) dan X (close) */}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </nav>
+
+          {/* ✅ FIX: Mobile dropdown menu dengan animasi */}
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="md:hidden mt-2 mx-auto bg-[#111111]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.6)] overflow-hidden"
+              >
+                <div className="flex flex-col py-2">
+                  <a href="#home" onClick={handleNavClick} className="px-6 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all">
+                    Home
+                  </a>
+                  <a href="#projects" onClick={handleNavClick} className="px-6 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all">
+                    Projects
+                  </a>
+                  <a href="#skills" onClick={handleNavClick} className="px-6 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all">
+                    Skills
+                  </a>
+                  <div className="mx-4 my-1 border-t border-white/10"></div>
+                  <a href="#contact" onClick={handleNavClick} className="px-6 py-3 text-sm font-bold text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 transition-all">
+                    Talk
+                  </a>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       <div className="relative z-10 pt-28 pb-10">
         
-        {/* HEADER / HERO SECTION (3D Spline Robot) */}
+        {/* HERO SECTION */}
         <section id="home" className="px-6 max-w-7xl mx-auto flex items-center justify-center min-h-[80vh] md:min-h-[90vh]">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -357,17 +336,9 @@ export default function Home() {
             transition={{ duration: 1 }}
             className="w-full mt-10 md:mt-0"
           >
-            {/* Penyesuaian untuk Mobile:
-                1. Ganti min-h jadi lebih dinamis (auto untuk mobile, 600px untuk desktop)
-                2. Ubah flex direction jadi flex-col-reverse agar robot di atas teks saat di HP
-            */}
             <Card className="w-full min-h-[700px] md:min-h-[600px] h-auto bg-black/[0.96] relative overflow-hidden border-white/10 rounded-3xl flex flex-col md:flex-row">
-              <Spotlight
-                className="-top-40 left-0 md:left-60 md:-top-20"
-                fill="white"
-              />
+              <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
               
-              {/* Left content (Teks) */}
               <div className="flex-1 p-6 md:p-12 relative z-10 flex flex-col justify-center order-2 md:order-1">
                 <div className="inline-flex items-center px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-4 md:mb-6 text-xs text-gray-300 w-fit">
                     <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2"></span>
@@ -377,7 +348,7 @@ export default function Home() {
                   Crafting digital <br className="hidden sm:block" /> experiences.
                 </h1>
                 <p className="mt-4 md:mt-6 text-neutral-300 max-w-lg text-base md:text-lg leading-relaxed">
-                 Building interactive, functional, and visually stunning web applications.
+                  Building interactive, functional, and visually stunning web applications.
                   Mode Pecut AI sejam kelar😝😹
                 </p>
                 <div className="mt-6 md:mt-8 flex gap-4">
@@ -387,18 +358,12 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Right content (3D Object) */}
-              {/* Penyesuaian Skala & Interaksi Robot:
-                  Layer overlay yang memblokir klik sudah DIHAPUS agar robot bisa di-drag di semua device.
-                  Cursor diset ke grab untuk menandakan elemen interaktif.
-              */}
               <div className="w-full h-[350px] md:h-auto md:flex-1 relative order-1 md:order-2 border-b border-white/5 md:border-b-0 cursor-grab active:cursor-grabbing">
                 <SplineScene 
                   scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
                   className="w-full h-full"
                 />
               </div>
-
             </Card>
           </motion.div>
         </section>
@@ -440,15 +405,12 @@ export default function Home() {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Skill 1 */}
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 hover:bg-white/[0.04] transition-all hover:-translate-y-1">
                 <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-6 text-blue-400">
                   <Layout className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">Frontend Dev</h3>
-                <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-                  Creating beautiful, responsive, and interactive user interfaces using modern web technologies.
-                </p>
+                <p className="text-gray-400 text-sm mb-6 leading-relaxed">Creating beautiful, responsive, and interactive user interfaces using modern web technologies.</p>
                 <div className="flex flex-wrap gap-2">
                   {['React', 'Next.js', 'Tailwind', 'Framer'].map(tech => (
                     <span key={tech} className="px-3 py-1 text-xs font-medium bg-white/5 border border-white/10 rounded-full">{tech}</span>
@@ -456,15 +418,12 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              {/* Skill 2 */}
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 hover:bg-white/[0.04] transition-all hover:-translate-y-1">
                 <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mb-6 text-green-400">
                   <Server className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">Backend & API</h3>
-                <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-                  Building scalable APIs and managing data efficiently to support frontend applications.
-                </p>
+                <p className="text-gray-400 text-sm mb-6 leading-relaxed">Building scalable APIs and managing data efficiently to support frontend applications.</p>
                 <div className="flex flex-wrap gap-2">
                   {['Node.js', 'Express', 'PostgreSQL', 'MongoDB'].map(tech => (
                     <span key={tech} className="px-3 py-1 text-xs font-medium bg-white/5 border border-white/10 rounded-full">{tech}</span>
@@ -472,15 +431,12 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              {/* Skill 3 */}
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 hover:bg-white/[0.04] transition-all hover:-translate-y-1">
                 <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6 text-purple-400">
                   <PenTool className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">UI/UX Design</h3>
-                <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-                  Crafting intuitive user experiences and aesthetic designs before bringing them to code.
-                </p>
+                <p className="text-gray-400 text-sm mb-6 leading-relaxed">Crafting intuitive user experiences and aesthetic designs before bringing them to code.</p>
                 <div className="flex flex-wrap gap-2">
                   {['Figma', 'Wireframing', 'Prototyping', 'Design Systems'].map(tech => (
                     <span key={tech} className="px-3 py-1 text-xs font-medium bg-white/5 border border-white/10 rounded-full">{tech}</span>
