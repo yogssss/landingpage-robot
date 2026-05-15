@@ -206,8 +206,8 @@ export default function Home() {
     setMounted(true)
   }, [])
 
-  // Variants untuk animasi scroll reveal
-  const fadeUp = {
+  // Variants untuk animasi scroll reveal (Tipe Any untuk menghindari TS Easing error di Framer Motion terbaru)
+  const fadeUp: any = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
   }
