@@ -299,8 +299,8 @@ const LoadingScreen = ({ onDone }: { onDone: () => void }) => {
     // Tampil 2.8 detik lalu fade out
     const timer = setTimeout(() => {
       setFadeOut(true)
-      setTimeout(onDone, 600) // tunggu animasi fade selesai
-    }, 8000)
+      setTimeout(onDone, 1000) // tunggu animasi fade selesai
+    }, 2800)
     return () => clearTimeout(timer)
   }, [onDone])
 
@@ -326,7 +326,7 @@ const LoadingScreen = ({ onDone }: { onDone: () => void }) => {
         .gurur-record-text {
           position: absolute; color: var(--c);
           font-size: 1.1em; font-weight: 700; letter-spacing: -0.02em;
-          left: 50%; top: 50%;
+          left: 100%; top: 100%;
           transform: translate(-0.6em, -50%);
           white-space: nowrap;
         }
