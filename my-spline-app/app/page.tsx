@@ -19,8 +19,8 @@ export default function Home() {
               Interactive 3D
             </h1>
             <p className="mt-4 text-neutral-300 max-w-lg">
-              Bring your UI to life with beautiful 3D scenes. Create immersive experiences
-              that capture attention and enhance your design.
+              Create immersive experiences Pake AI.
+              Gampang kan mpruyy?
             </p>
           </div>
 
