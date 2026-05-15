@@ -45,7 +45,7 @@ const BackgroundMusic = () => {
     <>
       <audio
         ref={audioRef}
-        src="https://cdn.pixabay.com/download/audio/2022/02/10/audio_fc8dc12495.mp3?filename=lofi-study-112191.mp3"
+        src="https://pixabay.com/id/music/techno-trance-skrillex-type-beat-145-bpm-edm-futuristic-139230/"
         loop
       />
       <button
@@ -156,12 +156,27 @@ function SplineScene({ scene, className }: SplineSceneProps) {
       setLoading(false)
     }, 1500)
 
-    return () => clearTimeout(timer)
+    // Interval tangguh untuk menghapus logo Spline di dalam Shadow DOM secara paksa
+    const removeLogoInterval = setInterval(() => {
+      const viewer = document.querySelector('spline-viewer');
+      if (viewer && viewer.shadowRoot) {
+        const logo = viewer.shadowRoot.querySelector('#logo');
+        if (logo) {
+          logo.remove(); // Hapus elemen logonya!
+          clearInterval(removeLogoInterval); // Hentikan interval jika logo sudah berhasil dihapus
+        }
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(removeLogoInterval);
+    }
   }, [scene])
 
   return (
     <div ref={containerRef} className={cn("w-full h-full relative rounded-2xl overflow-hidden", className)}>
-      {/* Tambahan CSS untuk menyembunyikan logo "Built with Spline" */}
+      {/* Fallback CSS untuk menyembunyikan logo "Built with Spline" */}
       <style>{`
         spline-viewer::part(logo) {
           display: none !important;
@@ -174,11 +189,11 @@ function SplineScene({ scene, className }: SplineSceneProps) {
         </div>
       )}
       
-      {/* Menggunakan web component langsung (mengabaikan warning react untuk custom element) */}
+      {/* Menggunakan web component langsung dengan events-target="global" untuk interaksi optimal */}
       <div 
         className="absolute inset-0 z-10 w-full h-full [&>spline-viewer]:w-full [&>spline-viewer]:h-full"
         dangerouslySetInnerHTML={{
-          __html: `<spline-viewer url="${scene}"></spline-viewer>`
+          __html: `<spline-viewer url="${scene}" events-target="global"></spline-viewer>`
         }}
       />
     </div>
@@ -370,14 +385,11 @@ export default function Home() {
               </div>
 
               {/* Right content (3D Object) */}
-              {/* Penyesuaian Skala Robot:
-                  Di HP, kita kasih tinggi absolut (misal 350px atau 400px) agar robot punya ruang sendiri.
-                  Di desktop, dia ngisi sisa ruang (flex-1).
+              {/* Penyesuaian Skala & Interaksi Robot:
+                  Layer overlay yang memblokir klik sudah DIHAPUS agar robot bisa di-drag di semua device.
+                  Cursor diset ke grab untuk menandakan elemen interaktif.
               */}
-              <div className="w-full h-[350px] md:h-auto md:flex-1 relative order-1 md:order-2 border-b border-white/5 md:border-b-0">
-                {/* Overlay transparan untuk mencegah scroll "nyangkut" di area 3D saat di HP */}
-                <div className="absolute inset-0 z-20 pointer-events-none md:pointer-events-auto"></div>
-                
+              <div className="w-full h-[350px] md:h-auto md:flex-1 relative order-1 md:order-2 border-b border-white/5 md:border-b-0 cursor-grab active:cursor-grabbing">
                 <SplineScene 
                   scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
                   className="w-full h-full"
