@@ -45,7 +45,8 @@ const BackgroundMusic = () => {
     <>
       <audio
         ref={audioRef}
-        src="https://pixabay.com/id/music/techno-trance-skrillex-type-beat-145-bpm-edm-futuristic-139230/"
+        // Pastikan file music.mp3 sudah Anda masukkan ke dalam folder "public" di project Anda
+        src="/music.mp3"
         loop
       />
       <button
@@ -320,30 +321,31 @@ export default function Home() {
       <div className="fixed top-[-10%] left-[-10%] w-96 h-96 bg-purple-600/20 rounded-full mix-blend-screen filter blur-[128px] opacity-50 pointer-events-none z-0"></div>
       <div className="fixed top-[20%] right-[-10%] w-96 h-96 bg-pink-600/20 rounded-full mix-blend-screen filter blur-[128px] opacity-50 pointer-events-none z-0"></div>
 
-      {/* Navbar */}
-      <nav className="fixed w-full z-50 bg-[#0a0a0a]/60 backdrop-blur-md border-b border-white/5 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="#home" className="text-xl font-bold tracking-tighter text-white">
-            Raka<span className="text-purple-500">.</span>
+      {/* Navbar Floating Bubble */}
+      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+        <nav className="pointer-events-auto bg-[#111111]/80 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3.5 flex items-center shadow-[0_8px_32px_rgba(0,0,0,0.8)] transition-all duration-300">
+          {/* Logo */}
+          <a href="#home" className="text-base font-bold tracking-tight text-white pr-2">
+            Gurur<span className="text-purple-500">.</span>
           </a>
           
-          <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-400">
+          {/* Garis Pemisah (Divider) */}
+          <div className="hidden md:block w-[1px] h-5 bg-white/15 mx-4"></div>
+          
+          {/* Menu Links */}
+          <div className="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-400">
             <a href="#home" className="hover:text-white transition-colors">Home</a>
-            <a href="#skills" className="hover:text-white transition-colors">Skills</a>
             <a href="#projects" className="hover:text-white transition-colors">Projects</a>
+            <a href="#skills" className="hover:text-white transition-colors">Skills</a>
+            <a href="#contact" className="text-white hover:text-purple-400 transition-colors font-bold tracking-wide">Talk</a>
           </div>
 
-          <div className="hidden md:block">
-            <a href="#contact" className="px-5 py-2.5 bg-white text-black font-medium text-sm rounded-full hover:bg-gray-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-              Let's Talk
-            </a>
-          </div>
-
-          <button className="md:hidden text-white">
-            <Menu className="w-6 h-6" />
+          {/* Tombol Menu untuk Mobile */}
+          <button className="md:hidden text-white ml-6">
+            <Menu className="w-5 h-5" />
           </button>
-        </div>
-      </nav>
+        </nav>
+      </div>
 
       <div className="relative z-10 pt-28 pb-10">
         
@@ -375,7 +377,8 @@ export default function Home() {
                   Crafting digital <br className="hidden sm:block" /> experiences.
                 </h1>
                 <p className="mt-4 md:mt-6 text-neutral-300 max-w-lg text-base md:text-lg leading-relaxed">
-                  I'm a creative developer focusing on building interactive, functional, and visually stunning web applications.
+                 Building interactive, functional, and visually stunning web applications.
+                  Mode Pecut AI sejam kelar😝😹
                 </p>
                 <div className="mt-6 md:mt-8 flex gap-4">
                   <a href="#projects" className="px-6 py-3 bg-white text-black font-medium rounded-full hover:bg-gray-200 transition-colors text-sm w-full sm:w-auto text-center">
@@ -547,7 +550,7 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="py-10 px-6 border-t border-white/5 text-center md:text-left relative z-10 bg-black">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-500 text-sm mb-4 md:mb-0">© 2024 Raka Portfolio. All rights reserved.</p>
+          <p className="text-gray-500 text-sm mb-4 md:mb-0">© 2026 Gurur Portfolio's. All rights reserved.</p>
           <div className="flex space-x-6">
             <a href="#" className="text-gray-500 hover:text-white transition-colors"><Code className="w-5 h-5" /></a>
             <a href="#" className="text-gray-500 hover:text-white transition-colors"><Globe className="w-5 h-5" /></a>
