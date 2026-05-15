@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef, Suspense, lazy } from "react"
-import { Layout, Server, PenTool, ArrowUpRight, Mail, Code, Globe, User, Menu } from "lucide-react"
+import { Layout, Server, PenTool, ArrowUpRight, Mail, Code, Globe, User, Menu, Volume2, VolumeX } from "lucide-react"
 import { motion, useScroll, useTransform, MotionValue } from "framer-motion"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
@@ -10,6 +10,55 @@ import { twMerge } from "tailwind-merge"
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+// --- COMPONENT: BACKGROUND MUSIC ---
+const BackgroundMusic = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    // Mencoba autoplay saat komponen dimuat
+    if (audioRef.current) {
+      audioRef.current.volume = 0.2; // Set volume rendah agar tidak mengganggu
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch((error) => {
+          // Browser biasanya memblokir autoplay tanpa interaksi pengguna
+          console.log("Autoplay dicegah oleh browser. Pengguna harus berinteraksi terlebih dahulu.");
+          setIsPlaying(false);
+        });
+    }
+  }, []);
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  return (
+    <>
+      <audio
+        ref={audioRef}
+        src="https://cdn.pixabay.com/download/audio/2022/02/10/audio_fc8dc12495.mp3?filename=lofi-study-112191.mp3"
+        loop
+      />
+      <button
+        onClick={toggleMute}
+        className="fixed bottom-6 right-6 z-50 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-full transition-all duration-300 shadow-lg text-white"
+        aria-label="Toggle Background Music"
+      >
+        {isPlaying ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+      </button>
+    </>
+  );
+};
+
 
 // --- COMPONENT: SHADCN CARD ---
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -112,6 +161,13 @@ function SplineScene({ scene, className }: SplineSceneProps) {
 
   return (
     <div ref={containerRef} className={cn("w-full h-full relative rounded-2xl overflow-hidden", className)}>
+      {/* Tambahan CSS untuk menyembunyikan logo "Built with Spline" */}
+      <style>{`
+        spline-viewer::part(logo) {
+          display: none !important;
+        }
+      `}</style>
+
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20 transition-opacity duration-500">
           <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
@@ -242,6 +298,9 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#050505] text-white selection:bg-purple-500/30 overflow-x-hidden relative">
       
+      {/* Background Music Component */}
+      <BackgroundMusic />
+
       {/* Ambient Background Glows */}
       <div className="fixed top-[-10%] left-[-10%] w-96 h-96 bg-purple-600/20 rounded-full mix-blend-screen filter blur-[128px] opacity-50 pointer-events-none z-0"></div>
       <div className="fixed top-[20%] right-[-10%] w-96 h-96 bg-pink-600/20 rounded-full mix-blend-screen filter blur-[128px] opacity-50 pointer-events-none z-0"></div>
@@ -274,52 +333,57 @@ export default function Home() {
       <div className="relative z-10 pt-28 pb-10">
         
         {/* HEADER / HERO SECTION (3D Spline Robot) */}
-        <section id="home" className="px-6 max-w-7xl mx-auto flex items-center justify-center min-h-[80vh]">
+        <section id="home" className="px-6 max-w-7xl mx-auto flex items-center justify-center min-h-[80vh] md:min-h-[90vh]">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
-            className="w-full"
+            className="w-full mt-10 md:mt-0"
           >
-            {/* Ubah tinggi card biar robot nggak kepotong di mobile */}
-            <Card className="w-full min-h-[500px] md:h-[600px] bg-black/[0.96] relative overflow-hidden border-white/10 rounded-3xl">
+            {/* Penyesuaian untuk Mobile:
+                1. Ganti min-h jadi lebih dinamis (auto untuk mobile, 600px untuk desktop)
+                2. Ubah flex direction jadi flex-col-reverse agar robot di atas teks saat di HP
+            */}
+            <Card className="w-full min-h-[700px] md:min-h-[600px] h-auto bg-black/[0.96] relative overflow-hidden border-white/10 rounded-3xl flex flex-col md:flex-row">
               <Spotlight
                 className="-top-40 left-0 md:left-60 md:-top-20"
                 fill="white"
               />
               
-              <div className="flex flex-col-reverse md:flex-row h-full">
-                
-                {/* Left content (Teks) */}
-                <div className="flex-1 p-8 md:p-12 relative z-10 flex flex-col justify-center">
-                  <div className="inline-flex items-center px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-6 text-xs text-gray-300 w-fit">
-                      <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2"></span>
-                      Available for work
-                  </div>
-                  <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 leading-tight">
-                    Crafting digital <br/> experiences.
-                  </h1>
-                  <p className="mt-6 text-neutral-300 max-w-lg text-lg leading-relaxed">
-                    Bikin kayak gini cuma pake AI gampang banget mpruyyy. Publishnya juga gratis cuma modal Prompt AI doang😹😹.
-                    Lu kalau gabisa tolol nya kebangetan sih, iya gua tau tolol itu gratis. TAPI JANGAN LU BORONG SEMUA SAMA BEGO DAN GOBLOGNYA DONG😹
-                    Maruk amat jadi orang😝
-                  </p>
-                  <div className="mt-8 flex gap-4">
-                    <a href="#projects" className="px-6 py-3 bg-white text-black font-medium rounded-full hover:bg-gray-200 transition-colors text-sm">
-                        View My Work
-                    </a>
-                  </div>
+              {/* Left content (Teks) */}
+              <div className="flex-1 p-6 md:p-12 relative z-10 flex flex-col justify-center order-2 md:order-1">
+                <div className="inline-flex items-center px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-4 md:mb-6 text-xs text-gray-300 w-fit">
+                    <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2"></span>
+                    Available for work
                 </div>
-
-                {/* Right content (3D Object) */}
-                <div className="flex-1 relative min-h-[350px] md:min-h-full">
-                  <SplineScene 
-                    scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                    className="w-full h-full"
-                  />
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 leading-tight">
+                  Crafting digital <br className="hidden sm:block" /> experiences.
+                </h1>
+                <p className="mt-4 md:mt-6 text-neutral-300 max-w-lg text-base md:text-lg leading-relaxed">
+                  I'm a creative developer focusing on building interactive, functional, and visually stunning web applications.
+                </p>
+                <div className="mt-6 md:mt-8 flex gap-4">
+                  <a href="#projects" className="px-6 py-3 bg-white text-black font-medium rounded-full hover:bg-gray-200 transition-colors text-sm w-full sm:w-auto text-center">
+                      View My Work
+                  </a>
                 </div>
-
               </div>
+
+              {/* Right content (3D Object) */}
+              {/* Penyesuaian Skala Robot:
+                  Di HP, kita kasih tinggi absolut (misal 350px atau 400px) agar robot punya ruang sendiri.
+                  Di desktop, dia ngisi sisa ruang (flex-1).
+              */}
+              <div className="w-full h-[350px] md:h-auto md:flex-1 relative order-1 md:order-2 border-b border-white/5 md:border-b-0">
+                {/* Overlay transparan untuk mencegah scroll "nyangkut" di area 3D saat di HP */}
+                <div className="absolute inset-0 z-20 pointer-events-none md:pointer-events-auto"></div>
+                
+                <SplineScene 
+                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                  className="w-full h-full"
+                />
+              </div>
+
             </Card>
           </motion.div>
         </section>
