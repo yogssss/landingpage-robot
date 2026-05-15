@@ -300,7 +300,7 @@ const LoadingScreen = ({ onDone }: { onDone: () => void }) => {
     const timer = setTimeout(() => {
       setFadeOut(true)
       setTimeout(onDone, 600) // tunggu animasi fade selesai
-    }, 2800)
+    }, 8000)
     return () => clearTimeout(timer)
   }, [onDone])
 
@@ -310,15 +310,15 @@ const LoadingScreen = ({ onDone }: { onDone: () => void }) => {
         .gurur-loader { --c: #f7971d; font-size: 18px; }
 
         .gurur-ph1 {
-          position: absolute; left: 50%; top: 50%;
+          position: absolute; left: 100%; top: 100%;
           transform: translate(-50%, -50%);
           display: flex; flex-direction: row; align-items: center; gap: 8px;
           animation: gurur-ph1 3s ease infinite;
           clip-path: polygon(-4em -1em, 4em -1em, 4em 1em, -4em 1em);
         }
         .gurur-record {
-          position: absolute; left: 50%; top: 50%;
-          width: 2em; height: 2em;
+          position: absolute; left: 70%; top: 70%;
+          width: 5em; height: 5em;
           background: var(--c); border-radius: 999px;
           animation: gurur-blink 1s step-end infinite;
           transform: translate(-3.5em, -50%);
